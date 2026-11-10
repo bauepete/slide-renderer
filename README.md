@@ -7,7 +7,7 @@ A reusable Slidev addon with the complete presentation style, Markdown rendering
 Install an exact release archive or pinned Git commit as a dev dependency, commit package.json and package-lock.json, and use npm ci for reproducible reinstalls. A sibling renderer source checkout is not needed to build the course.
 
 ```sh
-npm install --save-dev --save-exact ./vendor/slidev-addon-renderer-1.0.0.tgz
+npm install --save-dev --save-exact ./vendor/slidev-addon-renderer-1.0.1.tgz
 ```
 
 The package declares compatible Slidev/Vue peers. Keep their resolved versions in the consuming course lockfile. Enable the addon by package name at any deck depth:
@@ -75,3 +75,16 @@ Install dependencies in this repository with npm install, then npm test. Check r
 Create an archive using npm pack --ignore-scripts --pack-destination <course>/vendor. Increment the package version for each distributed release. In the course, explicitly install that archive and review its lockfile and rendered output. Archive integrity plus installed renderer content is included in SYPPRE publication fingerprints. A remote registry is optional; once a repository exists remotely, a Git dependency pinned to its exact commit is also supported. No remote is assumed here.
 
 The package includes source Vue/TypeScript: Slidev compiles it in the consuming build. Keep generated output, node_modules, review captures, and local archives out of this repository. [Asset provenance](assets/README.md) documents the original exit icon; template and logo artwork is retained from the existing shared renderer.
+
+## Impeccable metadata
+
+[PRODUCT.md](PRODUCT.md) describes the reusable web renderer. [.impeccable/surfaces/renderer.md](.impeccable/surfaces/renderer.md) maps editable renderer sources. DESIGN.md is the canonical visual specification; run `npm run design:sync` after changing its prose and `npm run design:check` to verify the sidecar's narrative rules. Curated specimens and token metadata remain in .impeccable/design.json. Educational rules and course-specific image selection belong to the consuming course.
+
+A consuming course can generate a local Impeccable view without maintaining duplicate specifications:
+
+```js
+import { syncCourseDesignContext } from 'slidev-addon-renderer/tooling/design-context.mjs'
+syncCourseDesignContext({ courseRoot: process.cwd(), policyPath: 'docs/presentation-policy.md' })
+```
+
+Use `{ check: true }` to detect stale context without writing. The helper writes the course's root DESIGN.md and .impeccable/design.json, retaining renderer tokens/specimens, rebasing local references into the installed package, and adding local policy. Wire it into the course postinstall lifecycle and verification commands; installation with --ignore-scripts requires explicit synchronization afterward. Keep generated views tracked and clearly marked; edit their source documents instead. The helper never rebuilds slides, changes history, or publishes material.

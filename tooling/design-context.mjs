@@ -10,15 +10,33 @@ const portable = path => path.split(sep).join('/')
 const hash = text => createHash('sha256').update(text).digest('hex')
 
 export function designSections(text) {
-  const tokens = markdown.parse(text, {})
+  // Plain Markdown treats YAML frontmatter as a setext heading. Mask its
+  // characters while retaining line offsets before reading real headings.
+  const body = text.replace(/^---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/, frontmatter => frontmatter.replace(/[^\r\n]/g, ' '))
+  const tokens = markdown.parse(body, {})
   const lines = text.split('\n')
   const headings = tokens.flatMap((token, i) => token.type === 'heading_open' && ['h2', 'h3'].includes(token.tag)
     ? [{ name: tokens[i + 1].content, level: token.tag, start: token.map[0], end: token.map[1] }] : [])
   let section
   return headings.map((heading, i) => {
     if (heading.level === 'h2') section = heading.name
-    return { ...heading, section, body: lines.slice(heading.end, headings[i + 1]?.start ?? lines.length).join('\n').trim() }
+    const nextPeer = headings.slice(i + 1).find(next => next.level <= heading.level)
+    return { ...heading, section,
+      body: lines.slice(heading.end, headings[i + 1]?.start ?? lines.length).join('\n').trim(),
+      subtree: lines.slice(heading.end, nextPeer?.start ?? lines.length).join('\n').trim() }
   })
+}
+
+function demoteHeadings(text) {
+  const lines = text.split('\n')
+  const tokens = markdown.parse(text, {})
+  for (const [i, token] of tokens.entries()) {
+    if (token.type !== 'heading_open') continue
+    const level = Math.min(6, Number(token.tag.slice(1)) + 1)
+    lines[token.map[0]] = '#'.repeat(level) + ' ' + tokens[i + 1].content
+    for (let line = token.map[0] + 1; line < token.map[1]; line++) lines[line] = ''
+  }
+  return lines.join('\n')
 }
 
 export function rendererDesignRules(text) {
@@ -30,9 +48,12 @@ export function rendererDesignRules(text) {
 // fragment-only links, URLs, and ordinary prose retain their original values.
 function rebase(text, from, to) {
   const local = path => {
-    if (!path || /^(?:[a-z][\w+.-]*:|\/|#)/i.test(path)) return path
-    const [file, suffix = ''] = path.split(/(?=[?#])/, 2)
-    return portable(relative(to, resolve(from, file))) + suffix
+    if (!path || /^(?:[a-z][\w+.-]*:|\/|[?#])/i.test(path)) return path
+    const split = path.search(/[?#]/)
+    const file = split < 0 ? path : path.slice(0, split)
+    const suffix = split < 0 ? '' : path.slice(split)
+    const target = portable(relative(to, resolve(from, file)))
+    return target + (file.endsWith('/') ? '/' : '') + suffix
   }
   return text.replace(/(\]\()([^\s)]+)(\))/g, (_, start, path, end) => start + local(path) + end)
     .replace(/`((?:assets|docs)\/[^`]+)`/g, (_, path) => '`' + local(path) + '`')
@@ -73,11 +94,14 @@ export function courseDesignContext({ courseRoot, policyPath = 'docs/presentatio
   const boundary = document.indexOf('\n## Colors\n')
   if (!document.startsWith('---\n') || boundary < 0) throw new Error('Renderer design must supply token frontmatter and a Colors section.')
   const courseSections = designSections(policy).filter(s => s.level === 'h2')
-  const policyBody = courseSections.map(s => `### ${s.name}\n\n${rebase(s.body, dirname(policyFile), courseRoot)}`).join('\n\n')
+  const policyIntro = policy.split('\n').slice(0, courseSections[0]?.start).join('\n').replace(/^# [^\n]*\n*/, '').trim()
+  const policyText = body => rebase(body, dirname(policyFile), courseRoot)
+  const policyBody = [policyText(policyIntro), ...courseSections.map(s => `### ${s.name}\n\n${policyText(demoteHeadings(s.subtree))}`)].filter(Boolean).join('\n\n')
   document = document.slice(0, boundary) + `\n${banner}\n\nCourse policy below is generated from [${policyName}](${policyName}); the shared visual system comes from pinned renderer ${pkg.version}.\n\n${policyBody}\n` + document.slice(boundary)
   data.components = data.components.map(component => ({ ...component }))
   data.narrative.rules = data.narrative.rules.map(rule => ({ ...rule, body: rebase(rule.body, rendererRoot, courseRoot) }))
-  data.narrative.rules.push(...courseSections.map(s => ({ name: s.name, body: rebase(s.body, dirname(policyFile), courseRoot), section: 'overview' })))
+  if (policyIntro) data.narrative.rules.push({ name: 'Course policy', body: policyText(policyIntro), section: 'overview' })
+  data.narrative.rules.push(...courseSections.map(s => ({ name: s.name, body: policyText(s.subtree), section: 'overview' })))
   data.generatedFrom = {
     renderer: { package: pkg.name, version: pkg.version, designSha256: hash(source), metadataSha256: hash(metadataText) },
     policy: { path: policyName, sha256: hash(policy) },

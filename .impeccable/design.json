@@ -58,10 +58,6 @@
     ],
     "rules": [
       {
-        "name": "name: Slide Renderer Presentations\ndescription: Calm, elegant, minimalistic teaching slides grounded in the course template.\ncolors:\n  text: \"#656565\"\n  background: \"#eceff2\"\ntypography:\n  title:\n    fontFamily: \"Gill Sans, Gill Sans MT, Calibri, sans-serif\"\n    fontSize: \"100px\"\n    fontWeight: 300\n  body:\n    fontFamily: \"Gill Sans, Gill Sans MT, Calibri, sans-serif\"\n    fontSize: \"52px\"\n    fontWeight: 300\n  secondary:\n    fontFamily: \"Gill Sans, Gill Sans MT, Calibri, sans-serif\"\n    fontSize: \"38px\"\n    fontWeight: 300\n  credit:\n    fontFamily: \"Gill Sans, Gill Sans MT, Calibri, sans-serif\"\n    fontSize: \"24px\"\n    fontWeight: 300\n    lineHeight: 1.2",
-        "body": "# Design System: Slide Renderer Presentations"
-      },
-      {
         "name": "Colors",
         "body": "Use the neutral gray text and pale cool gray background tokens above. Apply the supplied soft-gradient background from `assets/SlideLayoutTemplate/template-paper.jpg`. Authored text and graphics remain neutral, with the semantic callouts below as the explicit exception. Retain the supplied logo artwork. Choose relevant imagery to support the explanation.",
         "section": "colors"
