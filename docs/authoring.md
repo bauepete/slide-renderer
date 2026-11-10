@@ -1,6 +1,6 @@
 # Authoring slides
 
-Enable `slidev-addon-renderer` in Slidev headmatter. [README](../README.md) documents installation and course configuration; [DESIGN.md](../DESIGN.md) defines appearance. Course policy owns educational approval and publication.
+Enable `slidev-addon-renderer` in Slidev headmatter. [Course setup](../COURSE_SETUP.md) documents preparation, installation, and course configuration; [DESIGN.md](../DESIGN.md) defines appearance. Course policy owns educational approval and publication.
 
 ## Markdown and metadata
 

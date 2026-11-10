@@ -35,7 +35,9 @@
     "DESIGN.md",
     ".impeccable/design.json",
     "PRODUCT.md",
-    ".impeccable/surfaces/renderer.md"
+    ".impeccable/surfaces/renderer.md",
+    "COURSE_SETUP.md",
+    "AGENTS.md"
   ],
   "scripts": {
     "test": "node --test tests/*.test.mjs",
