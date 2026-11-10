@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.slidev/
+.review/
+.npm-cache/
+*.tgz
+.DS_Store

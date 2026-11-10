@@ -1,0 +1,59 @@
+{
+  "name": "slidev-addon-renderer",
+  "version": "1.0.1",
+  "type": "module",
+  "description": "Reusable Slidev renderer with layouts, styling, Markdown extensions, and web/offline build tooling",
+  "keywords": [
+    "slidev-addon",
+    "slidev"
+  ],
+  "engines": {
+    "node": ">=22.12.0",
+    "slidev": ">=52.20.1 <53"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    "./tooling/*": "./tooling/*",
+    "./utils/*": "./utils/*"
+  },
+  "bin": {
+    "slide-renderer": "./tooling/cli.mjs"
+  },
+  "files": [
+    "layouts",
+    "components",
+    "setup",
+    "utils",
+    "assets",
+    "tooling",
+    "docs",
+    "examples",
+    "tests",
+    "styles.css",
+    "global-top.vue",
+    "vite.config.mts",
+    "DESIGN.md",
+    ".impeccable/design.json",
+    "PRODUCT.md",
+    ".impeccable/surfaces/renderer.md"
+  ],
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "design:sync": "node tooling/design-context.mjs",
+    "design:check": "node tooling/design-context.mjs --check"
+  },
+  "peerDependencies": {
+    "@slidev/cli": "52.20.1",
+    "@slidev/theme-default": "0.25.0",
+    "vue": "^3.5.33"
+  },
+  "dependencies": {
+    "markdown-it": "14.3.3"
+  },
+  "devDependencies": {
+    "@vue/compiler-sfc": "^3.5.33",
+    "@slidev/cli": "52.20.1",
+    "@slidev/theme-default": "0.25.0",
+    "vue": "3.5.44"
+  }
+}
